@@ -8,20 +8,19 @@ class Exercise {
 
 class WorkoutManager { 
     constructor(selector) {
-        this.selector = selector
+        this.selector = selector        
         this.userList = JSON.parse(localStorage.getItem('exerciseBase'))
         this.render()
         this.createExerciseWiki()
         this.createExerciseSelect()
         this.createExercisesRecords()
-        this.addListeners()    
+        this.addListeners()  
     }
 
     addListeners() {
         document.querySelector('#btn-add').addEventListener('click', (e) => {
             e.preventDefault();
             this.addExerciseToUserList();
-            this.createExercisesRecords(); //????????
         });
 
         
@@ -43,12 +42,23 @@ class WorkoutManager {
               }
         });
 
+        document.querySelector('#btn-start').addEventListener('click', (e) => {
+            this.renderModal();
+        });
+
+        document.querySelector('#modal-place').addEventListener('click', (e) => {
+            if(e.target.classList.contains('finish-training')) {            
+                document.querySelector('#modal-place').innerHTML= '';
+            }
+        });
+
         
     }
 
     render() {
         this.selector.innerHTML = `
         <div class="container">
+            <div class="modal-place" id="modal-place"></div>
                 <div class="exercises-to-choice">
                     <div class="panel panel-default base-pannel">
                         <div class="panel-heading">
@@ -112,7 +122,7 @@ class WorkoutManager {
                         </thead>
                     </table>
                 </div>
-                <button class="btn btn-warning btn-block text-center align-middle" id="btn-start">Rozpocznij Trening</button>
+                <button class="btn btn-warning btn-block text-center align-middle" id="btn-start" data-toggle="modal" data-target="#exampleModal">Rozpocznij Trening</button>
             </div>
         `;    
     }
@@ -167,13 +177,19 @@ class WorkoutManager {
         let timeDuration = document.querySelector('#exercise-duration').value;
         let newOwnExercise;
 
-        exercise_data.forEach((item) => {
-            if(selectedExercise === item.title) {
-                newOwnExercise = new Exercise (selectedExercise, item.video, timeDuration);
-            }
-        });
+        if(timeDuration === '') {
+            document.querySelector('#exercise-duration').classList.add('error');
+        } else {
+
+            exercise_data.forEach((item) => {
+                if(selectedExercise === item.title) {
+                    newOwnExercise = new Exercise (selectedExercise, item.video, timeDuration);
+                }
+            });
  
-        this.userList.push(newOwnExercise);
+            this.userList.push(newOwnExercise);
+            this.createExercisesRecords();
+        }
     }
 
     createExercisesRecords() {
@@ -181,7 +197,7 @@ class WorkoutManager {
         let sum = 0;
         let totalTime = document.querySelector('#sum-of-time');
 
-        currentExercise.innerHTML = ''; // ?????????????
+        currentExercise.innerHTML = ''; 
 
         if(this.userList === null) {
             this.userList = [];
@@ -208,6 +224,67 @@ class WorkoutManager {
         this.createExercisesRecords();
     }
 
+    renderModal() {
+        document.querySelector('#modal-place').innerHTML = `
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel"></h5>                       
+                    </div>
+                    <div class="modal-body" id="modal-body">
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <div class="counter-seconds" id="counter-seconds"></div>
+                        <div class="wrapper">
+                            <button type="button" class="btn btn-secondary finish-training" data-dismiss="modal" id="finish-training">Zakończ</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+      </div>
+    `;
+
+        this.switchExercise();
+    }
+
+    switchExercise() {
+        let modalTitle = document.querySelector('.modal-title');
+        let modalBody = document.querySelector('#modal-body');
+        let modalSeconds = document.querySelector('#counter-seconds');
+
+        let list = this.userList;
+        let index = 0;
+
+        function nextExercise () {
+            if(index < list.length) {
+                let second = list[index].timeDuration;
+                
+                modalSeconds.innerHTML = second; 
+                modalBody.innerHTML = `
+                    <video class="embed-responsive-item video" autoplay loop><source src="${list[index].video}" type="video/mp4"> </video>
+                `;
+                
+                modalTitle.innerHTML = `${list[index].title}`;
+
+                const interval = setInterval(function() { 
+                    second--;
+                    modalSeconds.innerHTML = second; 
+                    if(second == 0) {
+                        index++;
+                        clearInterval(interval);
+                        nextExercise();
+                    }
+                }, 1000);
+            } 
+        }
+
+        nextExercise();
+    }
+
+ 
+        
 }
 
 
