@@ -8,7 +8,7 @@ class Exercise {
 
 class WorkoutManager { 
     constructor(selector) {
-        this.selector = selector        
+        this.selector = selector       
         this.userList = JSON.parse(localStorage.getItem('exerciseBase'))
         this.render()
         this.createExerciseWiki()
@@ -173,7 +173,6 @@ class WorkoutManager {
 
     addExerciseToUserList() {
         let selectedExercise = document.querySelector('#exercise-select').value;
-        //let videoExercise = `/videos/${selectedExercise}.mp4`; //zmiana nazwy wideo
         let timeDuration = document.querySelector('#exercise-duration').value;
         let newOwnExercise;
 
@@ -238,6 +237,8 @@ class WorkoutManager {
                     <div class="modal-footer">
                         <div class="counter-seconds" id="counter-seconds"></div>
                         <div class="wrapper">
+                            <button type="button" class="btn btn-secondary start-training" id="start-training">Start</button>
+                            <button type="button" class="btn btn-secondary stop-training" id="stop-training">Stop</button>
                             <button type="button" class="btn btn-secondary finish-training" data-dismiss="modal" id="finish-training">Zakończ</button>
                         </div>
                     </div>
@@ -256,6 +257,21 @@ class WorkoutManager {
 
         let list = this.userList;
         let index = 0;
+        let isPaused = false; 
+        
+
+        document.querySelector('#start-training').addEventListener('click', (e) => {
+            isPaused = false;
+            document.querySelector('video').play();            
+        });
+
+        document.querySelector('#stop-training').addEventListener('click', (e) => {
+            isPaused = true;
+            document.querySelector('video').pause();            
+        });
+
+        
+
 
         function nextExercise () {
             if(index < list.length) {
@@ -268,18 +284,25 @@ class WorkoutManager {
                 
                 modalTitle.innerHTML = `${list[index].title}`;
 
-                const interval = setInterval(function() { 
-                    second--;
-                    modalSeconds.innerHTML = second; 
-                    if(second == 0) {
-                        index++;
-                        clearInterval(interval);
-                        nextExercise();
+                const interval = setInterval(function() {
+                    if(!isPaused) {
+
+                        second--;
+                        modalSeconds.innerHTML = second;
+
+                        if(second == 0) {
+                            index++;
+                            clearInterval(interval);
+                            nextExercise();
+                        }
                     }
                 }, 1000);
-            } 
+            } else {
+                modalBody.innerHTML = `
+                <div class="end-training">Koniec treningu!</div>                
+                `; 
+            }            
         }
-
         nextExercise();
     }
 

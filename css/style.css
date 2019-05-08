@@ -17,6 +17,11 @@ input.error {
   height: 100%;
 }
 
+.modal-dialog .modal-content .end-training {
+  font-size: 4em;
+  color: green;
+}
+
 .modal-dialog .modal-content .modal-footer {
   display: -ms-flexbox;
   display: flex;

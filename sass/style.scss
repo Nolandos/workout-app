@@ -17,6 +17,12 @@ input {
 
     .modal-content {
         height: 100%;
+
+        .end-training {
+            font-size: 4em;
+            color: green;
+            
+        }
         
         .modal-footer {
             display: flex;
