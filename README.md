@@ -4,7 +4,7 @@ Application for active people, who want to plan their training.
 # Demo : 
 https://nolandos.github.io/workout-app/
 
-# Technologies (MERN stack) :
+# Technologies:
 - VanillaJS + OOP + ES6
 - localstorage
 - bootstrap
